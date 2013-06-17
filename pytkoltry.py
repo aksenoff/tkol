@@ -187,10 +187,6 @@ def main():
     print u"Вставляем", c, "(", char, ")"
     sleep(sleepTime) if pauses else raw_input(u"->")
     root2[0].addRotateNode(c, totalCount, root2, None, difSym2, sumTr2, rotateCount2)
-  print totalCount
-  print "TKOL:"
-  print "Different Symbols: ", difSym2[0]
-  print "Sum time: ", sumTr2[0]
   root2[0].printTree(1, totalCount)
   root2[0].AWD(0, awd2)
   print "TotalCount: ", totalCount
@@ -198,7 +194,7 @@ def main():
   print "Sum time", sumTr2[0]
   print "AWD", awd2[0]
   print "Rotate Count", rotateCount2[0]
-  raw_input(u"->")
+  raw_input(u"Press any key...")
 
 if __name__ == '__main__':
   main()
