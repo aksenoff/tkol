@@ -61,7 +61,6 @@ class Node(object):
       tRoot[0] = buf1
 
   def addRotateNode(self, data, totalCount, tRoot, parentVertex, difSym, sumTr, rotateCount):
-    rightCount = totalCount - self.selfCount - self.leftCount
     print u"В текущем узле", self.data
     self.vertex.set(color="#ff0000")
     if self.data == data:
@@ -72,6 +71,7 @@ class Node(object):
       self.vertex.set(size=self.selfCount/sizeDivide)
       self.vertex.set(color="#ffff00")
       if self.left[0] != 0:
+        rightCount = totalCount - self.selfCount - self.leftCount
         nLeftCount = self.leftCount
         rLeftCount = self.left[0].leftCount
         rRightCount = totalCount - self.left[0].leftCount - self.left[0].selfCount
@@ -81,6 +81,7 @@ class Node(object):
           self.RightRotate(tRoot, parentVertex)
           rotateCount[0] += 1
       if self.right[0] != 0:
+        rightCount = totalCount - self.selfCount - self.leftCount
         nLeftCount = self.leftCount
         rLeftCount = totalCount - rightCount + self.right[0].leftCount
         rRightCount = rightCount - self.right[0].leftCount - self.right[0].selfCount
@@ -97,6 +98,7 @@ class Node(object):
         self.left[0].addRotateNode(data, self.leftCount, self.left, self.vertex, difSym, sumTr, rotateCount)
         self.vertex.set(color="#ffff00")
         sumTr[0] += 1
+        rightCount = totalCount - self.selfCount - self.leftCount
         nLeftCount = self.leftCount
         rLeftCount = self.left[0].leftCount
         rRightCount = totalCount - self.left[0].leftCount - self.left[0].selfCount
@@ -114,6 +116,7 @@ class Node(object):
           else: self.left[0] = Node(data, U.newVertex(shape="sphere", color="#ffff00", size=1/sizeDivide, label=chr(data)))
         self.left[0].inEdge = U.newEdge(self.vertex, self.left[0].vertex, oriented=True)
         difSym[0] += 1
+        rightCount = totalCount - self.selfCount - self.leftCount
         nLeftCount = self.leftCount
         rLeftCount = self.left[0].leftCount
         rRightCount = totalCount - self.left[0].leftCount - self.left[0].selfCount
@@ -125,6 +128,7 @@ class Node(object):
     elif self.right[0] != 0: # self.data < data
       print u"Идем вправо"
       sleep(sleepTime) if pauses else raw_input(u"->")
+      rightCount = totalCount - self.selfCount - self.leftCount
       self.right[0].addRotateNode(data, rightCount, self.right, self.vertex, difSym, sumTr, rotateCount)
       self.vertex.set(color="#ffff00")
       sumTr[0] += 1
@@ -146,6 +150,7 @@ class Node(object):
         else: self.right[0] = Node(data, U.newVertex(shape="sphere", color="#ffff00", size=1/sizeDivide, label=chr(data)))
       self.right[0].inEdge = U.newEdge(self.vertex, self.right[0].vertex, oriented=True)
       difSym[0] += 1
+      rightCount = totalCount - self.selfCount - self.leftCount
       nLeftCount = self.leftCount
       rLeftCount = totalCount - rightCount + self.right[0].leftCount
       rRightCount = rightCount - self.right[0].leftCount - self.right[0].selfCount
