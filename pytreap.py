@@ -7,10 +7,10 @@ from ubigraph import Ubigraph
 U = Ubigraph()
 G = U.server.ubigraph
 pauses = True
-sleepTime = 0.05
+sleepTime = 0.1
 sizeDivide = 10
-bin = True
-nolabels = True
+bin = False
+nolabels = False
 
 class Node(object):
   def __init__(self, data, vertex):
@@ -61,6 +61,7 @@ class Node(object):
       tRoot[0] = buf1
 
   def addRotateNode(self, data, totalCount, tRoot, parentVertex, difSym, sumTr, rotateCount):
+    rightCount = totalCount - self.selfCount - self.leftCount
     print u"В текущем узле", self.data
     self.vertex.set(color="#ff0000")
     if self.data == data:
@@ -70,26 +71,6 @@ class Node(object):
       self.selfCount += 1
       self.vertex.set(size=self.selfCount/sizeDivide)
       self.vertex.set(color="#ffff00")
-      if self.left[0] != 0:
-        rightCount = totalCount - self.selfCount - self.leftCount
-        nLeftCount = self.leftCount
-        rLeftCount = self.left[0].leftCount
-        rRightCount = totalCount - self.left[0].leftCount - self.left[0].selfCount
-        if(abs(rightCount - nLeftCount)>abs(rRightCount - rLeftCount)):
-          print u"Выполняем правое вращение"
-          sleep(sleepTime) if pauses else raw_input(u"->")
-          self.RightRotate(tRoot, parentVertex)
-          rotateCount[0] += 1
-      if self.right[0] != 0:
-        rightCount = totalCount - self.selfCount - self.leftCount
-        nLeftCount = self.leftCount
-        rLeftCount = totalCount - rightCount + self.right[0].leftCount
-        rRightCount = rightCount - self.right[0].leftCount - self.right[0].selfCount
-        if(abs(nLeftCount-rightCount)>abs(rLeftCount - rRightCount)):
-          print u"Выполняем левое вращение"
-          sleep(sleepTime) if pauses else raw_input(u"->")
-          self.LeftRotate(tRoot, parentVertex)
-          rotateCount[0] += 1
     elif self.data > data:
       self.leftCount += 1
       if self.left[0] != 0:
@@ -98,11 +79,7 @@ class Node(object):
         self.left[0].addRotateNode(data, self.leftCount, self.left, self.vertex, difSym, sumTr, rotateCount)
         self.vertex.set(color="#ffff00")
         sumTr[0] += 1
-        rightCount = totalCount - self.selfCount - self.leftCount
-        nLeftCount = self.leftCount
-        rLeftCount = self.left[0].leftCount
-        rRightCount = totalCount - self.left[0].leftCount - self.left[0].selfCount
-        if(abs(rightCount - nLeftCount)>abs(rRightCount - rLeftCount)):
+	if(self.selfCount < self.left[0].selfCount):
           print u"Выполняем правое вращение"
           sleep(sleepTime) if pauses else raw_input(u"->")
           self.RightRotate(tRoot, parentVertex)
@@ -116,26 +93,13 @@ class Node(object):
           else: self.left[0] = Node(data, U.newVertex(shape="sphere", color="#ffff00", size=1/sizeDivide, label=chr(data)))
         self.left[0].inEdge = U.newEdge(self.vertex, self.left[0].vertex, oriented=True)
         difSym[0] += 1
-        rightCount = totalCount - self.selfCount - self.leftCount
-        nLeftCount = self.leftCount
-        rLeftCount = self.left[0].leftCount
-        rRightCount = totalCount - self.left[0].leftCount - self.left[0].selfCount
-        if(abs(rightCount - nLeftCount)>abs(rRightCount - rLeftCount)):
-          print u"Выполняем правое вращение"
-          sleep(sleepTime) if pauses else raw_input(u"->")
-          self.RightRotate(tRoot, parentVertex)
-          rotateCount[0] += 1
     elif self.right[0] != 0: # self.data < data
       print u"Идем вправо"
       sleep(sleepTime) if pauses else raw_input(u"->")
-      rightCount = totalCount - self.selfCount - self.leftCount
       self.right[0].addRotateNode(data, rightCount, self.right, self.vertex, difSym, sumTr, rotateCount)
       self.vertex.set(color="#ffff00")
       sumTr[0] += 1
-      nLeftCount = self.leftCount
-      rLeftCount = totalCount - rightCount + self.right[0].leftCount
-      rRightCount = rightCount - self.right[0].leftCount - self.right[0].selfCount
-      if(abs(nLeftCount-rightCount)>abs(rLeftCount - rRightCount)):
+      if(self.selfCount < self.right[0].selfCount):
         print u"Выполняем левое вращение!"
         print self.data
         sleep(sleepTime) if pauses else raw_input(u"->")
@@ -150,15 +114,6 @@ class Node(object):
         else: self.right[0] = Node(data, U.newVertex(shape="sphere", color="#ffff00", size=1/sizeDivide, label=chr(data)))
       self.right[0].inEdge = U.newEdge(self.vertex, self.right[0].vertex, oriented=True)
       difSym[0] += 1
-      rightCount = totalCount - self.selfCount - self.leftCount
-      nLeftCount = self.leftCount
-      rLeftCount = totalCount - rightCount + self.right[0].leftCount
-      rRightCount = rightCount - self.right[0].leftCount - self.right[0].selfCount
-      if(abs(nLeftCount-rightCount)>abs(rLeftCount - rRightCount)):
-        print u"Выполняем левое вращение!!"
-        sleep(sleepTime) if pauses else raw_input(u"->")
-        self.LeftRotate(tRoot, parentVertex)
-        rotateCount[0] += 1
     self.vertex.set(color="#ffff00")
 
   def AWD(self, data, awd):
@@ -170,7 +125,7 @@ class Node(object):
 def main():
   U.clear()
   if bin: f = file("binary.bin", "rb")
-  else: f = file("nude.txt", "r")
+  else: f = file("text.txt", "r")
   print u"Открыт файл"
   sleep(sleepTime) if pauses else raw_input(u"->")
   totalCount, difSym2, sumTr2, awd2, rotateCount2, root2 = 0, [0], [0], [0], [0], [0]
@@ -187,12 +142,15 @@ def main():
   for char in chain(iter(imap(f.read, repeat(1)).next, ''),[-1]):
     if char == -1: break
     if bin and (ord(char) == 0 or ord(char) == 85): continue
-    if not bin and char == ' ': continue
     totalCount += 1
     c = ord(char)
     print u"Вставляем", c, "(", char, ")"
     sleep(sleepTime) if pauses else raw_input(u"->")
     root2[0].addRotateNode(c, totalCount, root2, None, difSym2, sumTr2, rotateCount2)
+  print totalCount
+  print "Treap:"
+  print "Different Symbols: ", difSym2[0]
+  print "Sum time: ", sumTr2[0]
   root2[0].printTree(1, totalCount)
   root2[0].AWD(0, awd2)
   print "TotalCount: ", totalCount
@@ -200,7 +158,6 @@ def main():
   print "Sum time", sumTr2[0]
   print "AWD", awd2[0]
   print "Rotate Count", rotateCount2[0]
-  raw_input(u"Press any key...")
 
 if __name__ == '__main__':
   main()
